@@ -1,0 +1,460 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "lec11.ipynb",
+      "provenance": [],
+      "collapsed_sections": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/CatalystM47/Deep_Learning/blob/main/ASL%20classification\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "9x2LbhDYQWj9"
+      },
+      "source": [
+        "### Data Augmentation"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "C2xKO2WHLxU0"
+      },
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "train_df = pd.read_csv(\"sign_mnist_train.csv\")\n",
+        "valid_df = pd.read_csv(\"sign_mnist_valid.csv\")"
+      ],
+      "execution_count": 39,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "zAUwPoChN7rh"
+      },
+      "source": [
+        "y_train = train_df[\"label\"]\n",
+        "y_valid = valid_df[\"label\"]"
+      ],
+      "execution_count": 40,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NugssEgTORoB"
+      },
+      "source": [
+        "del train_df[\"label\"]\n",
+        "del valid_df[\"label\"]\n",
+        "\n",
+        "x_train = train_df.values\n",
+        "x_valid = valid_df.values"
+      ],
+      "execution_count": 41,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "xv2_2hGbOdGB"
+      },
+      "source": [
+        "from PIL import Image\n",
+        "\n",
+        "image = x_train[0,:].reshape(28,28)\n",
+        "img_pil = Image.fromarray(np.uint8(image))"
+      ],
+      "execution_count": 42,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "HdcgZpvUOgj_"
+      },
+      "source": [
+        "import torchvision.transforms as transforms\n",
+        "transform = transforms.Compose(\n",
+        "    [transforms.Resize(32),\n",
+        "     transforms.RandomCrop(28)]\n",
+        ")"
+      ],
+      "execution_count": 43,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 45
+        },
+        "id": "hJKdZWHiPtLm",
+        "outputId": "bb67fa81-5142-44fc-8469-8e09966f4101"
+      },
+      "source": [
+        "img_pil"
+      ],
+      "execution_count": 44,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "image/png": "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAB6ElEQVR4nD2SvW4TURhE58y9m107/3FCkECABCipeALooOBZeE46WgQFIigSOEAUJXZsr3e9+1E4ZMopjmZGw4fNQVnklFOyk5vSFhKhUDgnYww4UXydJCQQALZtMIDkyTyEJJBETrZZS6mdGyRJQgoDODnZUM3qIfcSeY2VsGNQe7imKpCUkw3CyZTdZbEBAUjqiSzfhZIGi/GowEJSoF6+D2Sncnt7rnUxCzsn7orgtDotvoxe9EqOcIQM/6tYufu4PFstLtaeZRvZtosDL5b1ZbqYjc09G2S7rGZX1z+qurr5c3ZrY4QFybC1OagG/WTSTsfz5pMwmGwMGj64/TWp0+G0+Tt7Vl20ZQiRJTDF6ub828/jk+HNqqm6tEEQ3MO7q/H4/HPRtZTmyE4YMmCrj2JryKidzvN+Uz/OCikir7eKSBs7o9n3+eiwWHb7Dhx9ZBDGoXL38Pf00fbgdra9hxRyZGOkro0cqdp9WC678m1JhAjlAHAn9a0HeRX14vWx6INAeb27mrZhK7xqppvPU4QdPX0GcBR9p2FH3TerN5sChSxnISLlpotu2d4Ug3cvIRSIIFtWOrq6rmdX067beP+Eu1NLYYEOYmc5nt+2ildPU1pfMdm2pLLqOd2b0vec3F1RRtI/5iDI3YTNSq0AAAAASUVORK5CYII=\n",
+            "text/plain": [
+              "<PIL.Image.Image image mode=L size=28x28 at 0x7F4CCB949B10>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 44
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 45
+        },
+        "id": "vFPkmbqBPvfm",
+        "outputId": "59dae044-3da2-48bc-9dc8-82a7b77fa2df"
+      },
+      "source": [
+        "transform(img_pil)"
+      ],
+      "execution_count": 45,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "image/png": "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAAAAABXZoBIAAAB3UlEQVR4nE2SzW4TQRCEq7p7Z7124hAnEQ5KDkiIAxLi1XhNnoA7IIX8INvY6/2bmeawG5I6Ts83011d/DqbFcFUVVSFKt+u1xUAgnBTESEpJAkyNQnEqPFwEkDpWhU8y0REhEIREaq1MSgBgGPxmSJFtZFSwZeiCAmKiKj1Wy2EdJIADCTHpwHT3dOyNBIE4JxIjlc0zGcxGwk66Kav2qWWt+Gpvlw4yJEkX1ir7hsJ5ZCXdNCm4UlKCMj9L7P9vOvOQPqr/4ogXb1PB2+226dMoQgmVMsSbf33NyO63Z/7DUgKQBGhzqtQmMZjPTSbTVt/zxTa5Ht10W12TRzO62G3qZby2BeATe6b1w8/77rV5aw+5hA8FOL43206PN79OBzeMTpV7I0SEFJIoefkeehSbttkRcKViYhM63FoqOYltrWUC+uxMooYp707i/mybR5kdVIgVksdHRonzbDZSX2MV4vQH+1yQcBNKCSQYxZSq9OrMva6/hLoDnOQFCYgx1yoRsTu7MM5mQGbkocYh1xUUVJq/OKtwsXdpuBpTm7lEHuk/vp2QQB0A0FCNCUncqp7WX9cK0AHjABgZW6HoW3aIeX3n26qMSUwkrCqPBz2db3vMk4/38xAOuD+DxuUyLEbn+WnAAAAAElFTkSuQmCC\n",
+            "text/plain": [
+              "<PIL.Image.Image image mode=L size=28x28 at 0x7F4CD0A95490>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 45
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "-RhE8VXbQams"
+      },
+      "source": [
+        "### 1. Data preparation"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ppT5MGDcQc0E"
+      },
+      "source": [
+        "import torch\n",
+        "from torch.utils.data import Dataset, DataLoader"
+      ],
+      "execution_count": 46,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "FjUNDOarQnBh"
+      },
+      "source": [
+        "class ASL_Dataset(Dataset):\n",
+        "    def __init__(self, path, transform=None):\n",
+        "        super(ASL_Dataset, self).__init__()\n",
+        "\n",
+        "        train_df = pd.read_csv(path)\n",
+        "        y_train = train_df[\"label\"]\n",
+        "        del train_df[\"label\"]\n",
+        "        x_train = train_df.values\n",
+        "\n",
+        "        self.x_train = x_train   # Nx784\n",
+        "        self.y_train = y_train\n",
+        "        self.transform = transform\n",
+        "\n",
+        "    def __getitem__(self, index):\n",
+        "        x_train_sample = np.uint8( self.x_train[index].reshape(28,28) )\n",
+        "\n",
+        "        if self.transform:\n",
+        "            x_train_pil = Image.fromarray(x_train_sample)\n",
+        "            x_train_np = np.array(self.transform(x_train_pil))\n",
+        "            x_train_tensor = torch.tensor( x_train_np[np.newaxis,:,:] ).float() # 1x28x28\n",
+        "        else:\n",
+        "            x_train_tensor = torch.tensor( x_train_sample[np.newaxis,:,:] ).float()\n",
+        "\n",
+        "        y_train_tensor = torch.tensor( self.y_train[index] )\n",
+        "\n",
+        "        return x_train_tensor, y_train_tensor\n",
+        "\n",
+        "    def __len__(self):\n",
+        "        return self.x_train.shape[0]"
+      ],
+      "execution_count": 47,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "AV5rIlg0Ts47"
+      },
+      "source": [
+        "training_data = ASL_Dataset(\"sign_mnist_train.csv\", transform=transform)\n",
+        "validation_data = ASL_Dataset(\"sign_mnist_valid.csv\")"
+      ],
+      "execution_count": 48,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "D8lZDdWMUA-V"
+      },
+      "source": [
+        "train_loader = DataLoader(dataset=training_data, batch_size=1000, shuffle=True)\n",
+        "validation_loader = DataLoader(dataset=validation_data, batch_size=1000, shuffle=False)"
+      ],
+      "execution_count": 49,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SUZCounAUePM"
+      },
+      "source": [
+        "### 2. Constructing a convolutional neural network"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "mhR4qdw4Ugik"
+      },
+      "source": [
+        "import torch.nn as nn"
+      ],
+      "execution_count": 50,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Widh1enWZPIi"
+      },
+      "source": [
+        "class ConvNet(nn.Module):\n",
+        "    def __init__(self):\n",
+        "        super(ConvNet, self).__init__()\n",
+        "        self.conv1 = nn.Conv2d(1, 16, 3, padding=1)\n",
+        "        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)\n",
+        "        self.conv3 = nn.Conv2d(32, 32, 3, padding=1)\n",
+        "        self.relu = nn.ReLU()\n",
+        "        self.pool = nn.MaxPool2d(2,2)\n",
+        "        self.fc = nn.Linear(32*7*7, 24)\n",
+        "\n",
+        "    def forward(self, x):  ## 1x28x28\n",
+        "        x = self.conv1(x)   ## 16x28x28\n",
+        "        x = self.relu(x)\n",
+        "        x = self.pool(x)    ## 16x14x14\n",
+        "\n",
+        "        x = self.conv2(x)   ## 32x14x14\n",
+        "        x = self.relu(x)\n",
+        "        x = self.pool(x)    ## 32x7x7\n",
+        "\n",
+        "        x = self.conv3(x)   ## 32x7x7\n",
+        "        x = self.relu(x)\n",
+        "\n",
+        "        x = x.view(-1, 32*7*7)\n",
+        "        x = self.fc(x)\n",
+        "\n",
+        "        return x"
+      ],
+      "execution_count": 51,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oqDkyiHycTYF"
+      },
+      "source": [
+        "convnet = ConvNet()"
+      ],
+      "execution_count": 52,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MzrBchVmcYRh"
+      },
+      "source": [
+        "### 3. Loss function and Optimization method"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "DcblnExvcWcI"
+      },
+      "source": [
+        "loss_function = nn.CrossEntropyLoss()\n",
+        "optimizer = torch.optim.Adam(convnet.parameters(), lr=0.001)"
+      ],
+      "execution_count": 53,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "T4zAj82GcXyT"
+      },
+      "source": [
+        "### 4. Training of a neural network "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FoS1fyNfcxz5",
+        "outputId": "43e9acf3-2656-43b6-8292-6ed51ce65577"
+      },
+      "source": [
+        "for epoch in range(20):\n",
+        "    loss_val = 0\n",
+        "    for itr, data in enumerate(train_loader):\n",
+        "        optimizer.zero_grad()\n",
+        "\n",
+        "        inputs, labels = data\n",
+        "\n",
+        "        pred = convnet(inputs)\n",
+        "        loss = loss_function(pred, labels)\n",
+        "\n",
+        "        loss.backward()\n",
+        "        optimizer.step()\n",
+        "\n",
+        "        loss_val += loss.item()\n",
+        "\n",
+        "    print(\"Epoch:\", epoch+1, \"  , Loss:\", loss_val)"
+      ],
+      "execution_count": 54,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Epoch: 1   , Loss: 94.34816575050354\n",
+            "Epoch: 2   , Loss: 46.73223531246185\n",
+            "Epoch: 3   , Loss: 22.95661371946335\n",
+            "Epoch: 4   , Loss: 13.324523150920868\n",
+            "Epoch: 5   , Loss: 8.517256319522858\n",
+            "Epoch: 6   , Loss: 6.103492468595505\n",
+            "Epoch: 7   , Loss: 4.554535135626793\n",
+            "Epoch: 8   , Loss: 3.3174335062503815\n",
+            "Epoch: 9   , Loss: 2.5859578773379326\n",
+            "Epoch: 10   , Loss: 1.8676623813807964\n",
+            "Epoch: 11   , Loss: 1.540258776396513\n",
+            "Epoch: 12   , Loss: 1.2344049289822578\n",
+            "Epoch: 13   , Loss: 0.9901169016957283\n",
+            "Epoch: 14   , Loss: 0.8010615892708302\n",
+            "Epoch: 15   , Loss: 0.7608920391649008\n",
+            "Epoch: 16   , Loss: 0.6418304685503244\n",
+            "Epoch: 17   , Loss: 0.5200782138854265\n",
+            "Epoch: 18   , Loss: 0.4341864576563239\n",
+            "Epoch: 19   , Loss: 0.49112296383827925\n",
+            "Epoch: 20   , Loss: 0.4409661050885916\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "uloa08LFhO1f"
+      },
+      "source": [
+        "### 5. Prediction and evaludation for a test set"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "LhJsd7lhhLvi",
+        "outputId": "8530345d-9572-48b6-a88b-54d3b06062d6"
+      },
+      "source": [
+        "pred_list = []\n",
+        "label_list = []\n",
+        "for itr, data in enumerate(validation_loader):\n",
+        "    inputs, labels = data\n",
+        "    pred_test = convnet(inputs)\n",
+        "    pred_category = torch.argmax(pred_test, dim=1)\n",
+        "\n",
+        "    pred_list = pred_list + list(pred_category)    \n",
+        "    label_list = label_list + list(labels)\n",
+        "\n",
+        "accu = np.mean( np.array(pred_list)==np.array(label_list) )\n",
+        "print(\"Test accuracy:\", accu)"
+      ],
+      "execution_count": 55,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Test accuracy: 0.8720022308979364\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "VZlrsYaMew53"
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": 55,
+      "outputs": []
+    }
+  ]
+}
